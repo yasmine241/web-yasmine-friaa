@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard – SG SecureBank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+
+<div id="fraudAlert" class="alert alert-danger m-0" style="display:none;">
+    🚨 Fraude détectée ! Vérifiez les alertes immédiatement.
+</div>
+
+<div id="navbar"></div>
+
+<div class="d-flex">
+    <div id="sidebar"></div>
+
+    <div class="container-fluid p-4">
+        <h4 class="mb-4 fw-bold">📊 Tableau de bord</h4>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-blue">
+                <div class="kpi-value" id="totalTransactions">—</div>
+                <div class="kpi-label">Total transactions</div>
+                <div class="kpi-icon">📈</div>
+            </div>
+            <div class="kpi-card kpi-red">
+                <div class="kpi-value" id="fraudCount">—</div>
+                <div class="kpi-label">En analyse (fraudes)</div>
+                <div class="kpi-icon">🚨</div>
+            </div>
+            <div class="kpi-card kpi-green">
+                <div class="kpi-value" id="safeCount">—</div>
+                <div class="kpi-label">Validées</div>
+                <div class="kpi-icon">✅</div>
+            </div>
+            <div class="kpi-card kpi-orange">
+                <div class="kpi-value" id="rejectedCount">—</div>
+                <div class="kpi-label">Rejetées</div>
+                <div class="kpi-icon">🚫</div>
+            </div>
+            <div class="kpi-card kpi-purple">
+                <div class="kpi-value" id="pendingAlerts">—</div>
+                <div class="kpi-label">Alertes en attente</div>
+                <div class="kpi-icon">⏳</div>
+            </div>
+        </div>
+
+        <!-- Métriques financières -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 text-center">
+                    <div class="text-muted small">Taux de fraude</div>
+                    <div class="fs-4 fw-bold text-danger" id="fraudRate">—</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 text-center">
+                    <div class="text-muted small">Montant en analyse</div>
+                    <div class="fs-4 fw-bold text-warning" id="fraudAmount">—</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 text-center">
+                    <div class="text-muted small">Montant total traité</div>
+                    <div class="fs-4 fw-bold text-success" id="totalAmount">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique + Tableau récent -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <h6>Répartition des transactions</h6>
+                    <canvas id="fraudPieChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="recent-table-card">
+                    <h6 class="fw-bold mb-3">⚠️ Alertes fraude en attente</h6>
+                    <table class="table table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Type</th>
+                                <th>Niveau</th>
+                                <th>Score ML</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentFraudsBody">
+                            <tr><td colspan="5" class="text-center text-muted">Chargement…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

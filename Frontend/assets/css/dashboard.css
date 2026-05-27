@@ -1,0 +1,73 @@
+/* ═══════════════════════════════════════════
+   SG SecureBank – Dashboard styles
+   ═══════════════════════════════════════════ */
+
+/* ── KPI cards ───────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  border-radius: 10px;
+  padding: 1.5rem 1.25rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card .kpi-icon {
+  font-size: 2.5rem;
+  opacity: .25;
+  position: absolute;
+  right: 1rem; bottom: .5rem;
+}
+
+.kpi-card .kpi-value { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+.kpi-card .kpi-label { font-size: .85rem; opacity: .85; margin-top: .3rem; }
+
+.kpi-blue     { background: linear-gradient(135deg,#0d6efd,#0a58ca); }
+.kpi-red      { background: linear-gradient(135deg,#dc3545,#b02a37); }
+.kpi-green    { background: linear-gradient(135deg,#198754,#146c43); }
+.kpi-orange   { background: linear-gradient(135deg,#fd7e14,#dc6502); }
+.kpi-purple   { background: linear-gradient(135deg,#6f42c1,#59359a); }
+
+/* ── Chart containers ────────────────────── */
+.chart-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-card h6 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #555;
+  text-transform: uppercase;
+  font-size: .78rem;
+  letter-spacing: .05em;
+}
+
+.chart-card canvas { flex: 1; }
+
+/* ── Recent fraud table ──────────────────── */
+.recent-table-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+/* ── Fraud alert banner ──────────────────── */
+#fraudAlert {
+  font-weight: 600;
+  text-align: center;
+  font-size: 1rem;
+  letter-spacing: .02em;
+}

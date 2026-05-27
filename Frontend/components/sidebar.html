@@ -1,0 +1,17 @@
+<div style="width:220px; min-height:100vh; background:#1a1a2e; padding-top:1rem; flex-shrink:0;">
+    <a href="dashboard.html"    id="link-dashboard"    style="display:flex;align-items:center;gap:.7rem;color:#ccc;text-decoration:none;padding:.7rem 1.25rem;font-size:.93rem;">📊 Dashboard</a>
+    <a href="clients.html"      id="link-clients"      style="display:flex;align-items:center;gap:.7rem;color:#ccc;text-decoration:none;padding:.7rem 1.25rem;font-size:.93rem;">👤 Clients</a>
+    <a href="comptes.html"      id="link-comptes"      style="display:flex;align-items:center;gap:.7rem;color:#ccc;text-decoration:none;padding:.7rem 1.25rem;font-size:.93rem;">🏦 Comptes</a>
+    <a href="transactions.html" id="link-transactions" style="display:flex;align-items:center;gap:.7rem;color:#ccc;text-decoration:none;padding:.7rem 1.25rem;font-size:.93rem;">📈 Transactions</a>
+    <a href="fraud.html"        id="link-fraud"        style="display:flex;align-items:center;gap:.7rem;color:#ccc;text-decoration:none;padding:.7rem 1.25rem;font-size:.93rem;">🚨 Fraudes</a>
+    <hr style="border-color:rgba(255,255,255,.12); margin:.5rem 1rem;">
+    <a href="#" onclick="logout()" style="display:flex;align-items:center;gap:.7rem;color:#ccc;text-decoration:none;padding:.7rem 1.25rem;font-size:.93rem;">🚪 Déconnexion</a>
+</div>
+<script>
+(function() {
+    const page = window.location.pathname.split("/").pop();
+    const map  = { "dashboard.html":"link-dashboard","clients.html":"link-clients","comptes.html":"link-comptes","transactions.html":"link-transactions","fraud.html":"link-fraud" };
+    const el   = document.getElementById(map[page]);
+    if (el) { el.style.background="rgba(255,255,255,.08)"; el.style.color="#fff"; el.style.borderLeft="3px solid #e30613"; }
+})();
+</script>
