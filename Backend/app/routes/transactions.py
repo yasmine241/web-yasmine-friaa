@@ -53,9 +53,7 @@ def create_transaction():
     score    = float(result["score"])
     score    = round(min(max(score, 0.0), 1.0), 4)   # sécurité : clamp 0-1
     is_fraud = result["fraud"]
-    if score >= 0.9:   status = "REJETEE"
-    elif is_fraud:     status = "EN_ANALYSE"
-    else:              status = "VALIDEE"
+    status   = "EN_ANALYSE" if is_fraud else "VALIDEE"
 
     new_tx = Transaction(
         compte_id        = data["compte_id"],

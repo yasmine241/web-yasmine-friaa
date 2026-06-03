@@ -26,8 +26,8 @@ def login():
         token = create_access_token(identity="admin")
         return jsonify({
             "message": "Login successful", "token": token,
-            "role": "admin", "client_id": 0,
-            "nom": "Admin", "prenom": "Banquier"
+            "role": "yasmine", "client_id": 0,
+            "nom": "Yasmine", "prenom": "Banquier"
         }), 200
 
     try:
