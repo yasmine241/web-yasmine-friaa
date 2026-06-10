@@ -1,0 +1,29 @@
+# Environnement
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Modèles ML (binaires volumineux — gérez-les avec git-lfs si nécessaire)
+app/services/fraud_model.pkl
+app/services/label_encoders.pkl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

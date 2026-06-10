@@ -2,9 +2,12 @@ Flask
 flask-cors
 flask-jwt-extended
 flask-sqlalchemy
+flask-limiter
+python-dotenv
 oracledb
 numpy
 pandas
 scikit-learn
 joblib
 tensorflow
+werkzeug
