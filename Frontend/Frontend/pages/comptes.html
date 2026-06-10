@@ -13,39 +13,13 @@
     <div id="sidebar"></div>
 
     <div class="container-fluid p-4">
-
-        <!-- En-tête -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="fw-bold mb-0">🏦 Comptes bancaires</h4>
-                <p class="text-muted small mb-0" id="comptesCount">Chargement…</p>
-            </div>
-            <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addCompteModal">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold">🏦 Comptes bancaires</h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompteModal">
                 + Nouveau compte
             </button>
         </div>
 
-        <!-- Filtres -->
-        <div class="card p-3 mb-3">
-            <div class="row g-2 align-items-center">
-                <div class="col-md-5">
-                    <input id="searchCompte" class="form-control" placeholder="🔍 Rechercher (IBAN, type, statut, client ID)…">
-                </div>
-                <div class="col-md-3">
-                    <select id="statutFilter" class="form-select">
-                        <option value="">Tous les statuts</option>
-                        <option value="ACTIF">Actif</option>
-                        <option value="SUSPENDU">Suspendu</option>
-                        <option value="CLOTURE">Clôturé</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-secondary w-100" onclick="refreshComptes()">↻ Actualiser</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tableau -->
         <div class="card p-4">
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -53,16 +27,15 @@
                         <tr>
                             <th>#</th>
                             <th>Client ID</th>
-                            <th>Numéro IBAN</th>
+                            <th>Numéro</th>
                             <th>Type</th>
                             <th>Solde</th>
                             <th>Devise</th>
                             <th>Statut</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="comptesTable">
-                        <tr><td colspan="8" class="text-center text-muted py-4">Chargement…</td></tr>
+                        <tr><td colspan="7" class="text-center text-muted">Chargement…</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -75,22 +48,19 @@
     <div class="modal-dialog">
         <div class="modal-content p-3">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold">Nouveau compte bancaire</h5>
+                <h5 class="modal-title fw-bold">Nouveau compte</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="compteForm">
                     <div class="row g-2">
                         <div class="col-12">
-                            <label class="form-label fw-semibold">ID Client <span class="text-danger">*</span></label>
-                            <input id="clientId" class="form-control" placeholder="Ex : 42" type="number" min="1" required>
+                            <input id="clientId"     class="form-control" placeholder="ID Client" type="number" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Numéro IBAN <span class="text-danger">*</span></label>
-                            <input id="numeroCompte" class="form-control" placeholder="FR76 3000 6000 0112 3456 7890 189" required>
+                            <input id="numeroCompte" class="form-control" placeholder="Numéro IBAN" required>
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-semibold">Type de compte</label>
                             <select id="typeCompte" class="form-select">
                                 <option value="COURANT">Courant</option>
                                 <option value="EPARGNE">Épargne</option>
@@ -98,22 +68,17 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-semibold">Devise</label>
+                            <input id="solde" class="form-control" placeholder="Solde initial" type="number" step="0.01" value="0">
+                        </div>
+                        <div class="col-6">
                             <select id="deviseCompte" class="form-select">
-                                <option value="EUR">EUR €</option>
-                                <option value="USD">USD $</option>
-                                <option value="GBP">GBP £</option>
-                                <option value="CHF">CHF</option>
+                                <option value="EUR">EUR</option>
+                                <option value="USD">USD</option>
+                                <option value="GBP">GBP</option>
                             </select>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">Solde initial (€)</label>
-                            <input id="solde" class="form-control" placeholder="0.00" type="number" step="0.01" min="0" value="0">
-                        </div>
                     </div>
-                    <button type="submit" id="submitCompteBtn" class="btn btn-primary w-100 mt-3 fw-bold">
-                        Créer le compte
-                    </button>
+                    <button type="submit" class="btn btn-primary w-100 mt-3 fw-bold">Créer le compte</button>
                 </form>
             </div>
         </div>
@@ -123,6 +88,60 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/config.js"></script>
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/comptes.js"></script>
+<script>
+async function loadComptes() {
+    try {
+        const data  = await getComptes();
+        const tbody = document.getElementById("comptesTable");
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Aucun compte.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(c => `
+            <tr>
+                <td>#${c.id}</td>
+                <td>${c.client_id}</td>
+                <td><code>${c.numero_compte}</code></td>
+                <td>${c.type_compte}</td>
+                <td class="fw-bold">${Number(c.solde).toLocaleString("fr-FR")} ${c.devise}</td>
+                <td>${c.devise}</td>
+                <td><span class="badge-statut badge-${c.statut}">${c.statut}</span></td>
+            </tr>
+        `).join("");
+    } catch (err) {
+        console.error("Erreur comptes:", err);
+    }
+}
+
+async function submitCompte(e) {
+    e.preventDefault();
+    const data = {
+        client_id:     parseInt(document.getElementById("clientId").value),
+        numero_compte: document.getElementById("numeroCompte").value,
+        type_compte:   document.getElementById("typeCompte").value,
+        solde:         parseFloat(document.getElementById("solde").value) || 0,
+        devise:        document.getElementById("deviseCompte").value
+    };
+    try {
+        await createCompte(data);
+        showToast("Compte créé ✅");
+        document.getElementById("compteForm").reset();
+        bootstrap.Modal.getInstance(document.getElementById("addCompteModal"))?.hide();
+        loadComptes();
+    } catch (err) {
+        showToast("Erreur : " + err.message, "danger");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    requireAuth();
+    await loadComponent("navbar",  "../components/navbar.html");
+    await loadComponent("sidebar", "../components/sidebar.html");
+    loadComptes();
+    document.getElementById("compteForm").addEventListener("submit", submitCompte);
+});
+</script>
 </body>
 </html>

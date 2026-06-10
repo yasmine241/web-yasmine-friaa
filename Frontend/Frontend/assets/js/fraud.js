@@ -1,40 +1,26 @@
-// ── fraud.js — Gestion des alertes fraude ────────────────────────────────────
-
 const STATUT_LABEL = {
     "EN_COURS":     "En cours",
-    "CONFIRME":     "Confirmée",
+    "CONFIRME":     "Confirmé",
     "FAUX_POSITIF": "Faux positif",
-    "RESOLU":       "Résolue"
+    "RESOLU":       "Résolu"
 };
 
 /**
- * Normalise le score ML (défense contre anciennes données aberrantes).
- */
-function formatScoreML(score) {
-    score = parseFloat(score || 0);
-    if (score > 1) score = score / 100;
-    return `${(score * 100).toFixed(0)}%`;
-}
-
-/**
- * Retourne les boutons d'action selon le statut de l'alerte.
+ * CORRECTION : actions disponibles selon le statut de chaque fraude
  */
 function renderActions(f) {
     switch (f.statut_analyse) {
 
         case "EN_COURS":
             return `
-                <button class="btn btn-sm btn-danger me-1 fw-bold"
+                <button class="btn btn-sm btn-danger me-1"
                         onclick="actionFraud(${f.id},'valider')">
                     ✅ Confirmer
                 </button>
-                <button class="btn btn-sm btn-secondary me-1"
+                <button class="btn btn-sm btn-secondary"
                         onclick="actionFraud(${f.id},'rejeter')">
                     ❌ Faux positif
                 </button>
-                <a href="fraud-detail.html?id=${f.id}" class="btn btn-sm btn-outline-secondary">
-                    👁 Détails
-                </a>
             `;
 
         case "CONFIRME":
@@ -43,34 +29,44 @@ function renderActions(f) {
                         onclick="actionFraud(${f.id},'bloquer')">
                     🔒 Bloquer compte
                 </button>
-                <a href="fraud-detail.html?id=${f.id}" class="btn btn-sm btn-outline-secondary">
+                <button class="btn btn-sm btn-outline-secondary"
+                        onclick="voirDetail(${f.id})">
                     👁 Détails
-                </a>
+                </button>
             `;
 
         case "FAUX_POSITIF":
             return `
-                <button class="btn btn-sm btn-outline-primary me-1"
+                <button class="btn btn-sm btn-outline-primary"
                         onclick="actionFraud(${f.id},'reclassifier')">
                     🔄 Reclassifier
                 </button>
-                <a href="fraud-detail.html?id=${f.id}" class="btn btn-sm btn-outline-secondary">
+            `;
+
+        case "RESOLU":
+            return `
+                <button class="btn btn-sm btn-outline-secondary"
+                        onclick="voirDetail(${f.id})">
                     👁 Détails
-                </a>
+                </button>
             `;
 
         default:
-            return `
-                <a href="fraud-detail.html?id=${f.id}" class="btn btn-sm btn-outline-secondary">
-                    👁 Détails
-                </a>
-            `;
+            return "—";
     }
 }
 
 /**
- * Charge et affiche toutes les alertes.
+ * CORRECTION : normalisation défensive du score_ml
+ * Au cas où de vieilles données aberrantes passent encore
  */
+function formatScoreML(score) {
+    score = parseFloat(score || 0);
+    if (score > 1) score = score / 100;   // sécurité données anciennes
+    return `${(score * 100).toFixed(0)}%`;
+}
+
+
 async function loadFrauds() {
     try {
         const frauds = await getFrauds();
@@ -80,9 +76,7 @@ async function loadFrauds() {
         if (!frauds || frauds.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
-                        Aucune alerte de fraude enregistrée.
-                    </td>
+                    <td colspan="7" class="text-center text-muted">Aucune alerte</td>
                 </tr>
             `;
             return;
@@ -90,8 +84,8 @@ async function loadFrauds() {
 
         tbody.innerHTML = frauds.map(f => `
             <tr>
-                <td><span class="text-muted">#</span>${f.id}</td>
-                <td><a href="fraud-detail.html?id=${f.id}" style="color:#e30613; font-weight:600;">#${f.transaction_id}</a></td>
+                <td>#${f.id}</td>
+                <td>#${f.transaction_id}</td>
                 <td>${f.type_fraude ?? "—"}</td>
                 <td>
                     <span class="badge-statut badge-${f.niveau_risque}">
@@ -108,75 +102,54 @@ async function loadFrauds() {
             </tr>
         `).join("");
 
-    } catch (err) {
+    } catch(err) {
         console.error("Erreur fraudes:", err);
-        showToast("Impossible de charger les alertes.", "danger");
     }
 }
 
-/**
- * Exécute une action sur une alerte fraude.
- */
+
 async function actionFraud(id, action) {
     const commentaire = prompt("Commentaire (optionnel) :");
 
     try {
         switch (action) {
-
             case "valider":
                 await validerFraud(id, { commentaire });
-                showToast("Fraude confirmée — transaction rejetée ✅", "success");
+                showToast("Fraude confirmée ✅", "success");
                 break;
-
             case "rejeter":
                 await rejeterFraud(id, { commentaire });
                 showToast("Marqué comme faux positif ✅", "success");
                 break;
-
             case "bloquer":
-                // L'action "bloquer" est gérée via la confirmation de fraude
-                // (validerFraud met déjà la transaction en REJETEE)
-                showToast("Le compte a été signalé. Contactez un superviseur pour le blocage définitif.", "warning");
+                await bloquerCompte(id, { commentaire });
+                showToast("Compte bloqué 🔒", "warning");
                 break;
-
             case "reclassifier":
-                // Reclassifier un faux positif → retour EN_COURS via un appel personnalisé
-                await authFetch(`/api/fraud/${id}/reclassifier`, {
-                    method: "PUT",
-                    body: JSON.stringify({ commentaire })
-                }).catch(() => {
-                    // Endpoint optionnel — si non implémenté, on avertit l'utilisateur
-                    showToast("Reclassification : fonctionnalité en cours de déploiement.", "warning");
-                    return;
-                });
-                showToast("Alerte reclassifiée 🔄", "info");
+                await reclassifierFraud(id, { commentaire });
+                showToast("Fraude reclassifiée 🔄", "info");
                 break;
-
             default:
-                showToast("Action non reconnue.", "danger");
+                showToast("Action inconnue", "danger");
                 return;
         }
-        await loadFrauds();
-
-    } catch (err) {
+        loadFrauds();
+    } catch(err) {
         showToast("Erreur : " + err.message, "danger");
     }
 }
 
-/**
- * Vérification manuelle d'une transaction.
- */
-async function checkFraud() {
-    const amountInput = document.getElementById("amount");
-    const amount      = parseFloat(amountInput?.value);
+function voirDetail(id) {
+    window.location.href = `fraud-detail.html?id=${id}`;
+}
 
-    if (!amount || isNaN(amount) || amount <= 0) {
-        showToast("Veuillez saisir un montant valide.", "danger");
+
+async function checkFraud() {
+    const amount = parseFloat(document.getElementById("amount").value);
+    if (!amount || isNaN(amount)) {
+        alert("Montant invalide");
         return;
     }
-
-    const btn = document.querySelector("[onclick='checkFraud()']");
-    if (btn) { btn.disabled = true; btn.textContent = "Analyse en cours…"; }
 
     try {
         const result = await detectFraud({
@@ -186,23 +159,23 @@ async function checkFraud() {
             type_transaction: document.getElementById("typeTransaction")?.value || "VIREMENT"
         });
 
-        const output       = document.getElementById("result");
-        const scoreDisplay = (parseFloat(result.score) * 100).toFixed(0);
+        const output = document.getElementById("result");
+
+        // CORRECTION : result.score est en 0-1 (cohérent avec le backend corrigé)
+        const scoreDisplay = (result.score * 100).toFixed(0);
 
         output.innerHTML = result.is_fraud
-            ? `<strong>🚨 Fraude probable détectée</strong><br>Niveau : <strong>${result.niveau}</strong> — Score ML : <strong>${scoreDisplay}%</strong>`
-            : `<strong>✅ Transaction considérée sûre</strong><br>Score ML : <strong>${scoreDisplay}%</strong>`;
+            ? `🚨 FRAUDE DÉTECTÉE — Niveau : ${result.niveau} — Score : ${scoreDisplay}%`
+            : `✅ Transaction SÛRE — Score : ${scoreDisplay}%`;
 
         output.className = `mt-3 alert alert-${result.is_fraud ? "danger" : "success"}`;
 
-    } catch (err) {
-        showToast("Erreur lors de l'analyse : " + err.message, "danger");
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = "Analyser"; }
+    } catch(err) {
+        showToast("Erreur serveur", "danger");
     }
 }
 
-// ── Initialisation ────────────────────────────────────────────────────────────
+
 document.addEventListener("DOMContentLoaded", async () => {
     requireAuth();
     await loadComponent("navbar",  "../components/navbar.html");
