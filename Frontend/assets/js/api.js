@@ -30,5 +30,7 @@ async function getFrauds()              { return authFetch("/api/fraud"); }
 async function getPendingFrauds()       { return authFetch("/api/fraud/pending"); }
 async function validerFraud(id, data)   { return authFetch(`/api/fraud/${id}/valider`, { method:"PUT", body:JSON.stringify(data) }); }
 async function rejeterFraud(id, data)   { return authFetch(`/api/fraud/${id}/rejeter`, { method:"PUT", body:JSON.stringify(data) }); }
+async function bloquerCompte(id, data)      { return authFetch(`/api/fraud/${id}/bloquer`,      { method:"PUT", body:JSON.stringify(data) }); }
+async function reclassifierFraud(id, data)  { return authFetch(`/api/fraud/${id}/reclassifier`, { method:"PUT", body:JSON.stringify(data) }); }
 async function detectFraud(transaction) { return authFetch("/api/fraud/detect", { method:"POST", body:JSON.stringify(transaction) }); }
 async function createTransaction(data)  { return authFetch("/api/transactions", { method:"POST", body:JSON.stringify(data) }); }
