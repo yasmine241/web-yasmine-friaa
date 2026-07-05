@@ -140,7 +140,7 @@ async function actionFraud(id, action) {
 }
 
 function voirDetail(id) {
-    window.location.href = `fraud-detail.html?id=${id}`;
+    showToast("Page de détail non implémentée", "info");
 }
 
 
