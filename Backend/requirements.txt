@@ -8,3 +8,4 @@ pandas
 scikit-learn
 joblib
 tensorflow
+python-dotenv
