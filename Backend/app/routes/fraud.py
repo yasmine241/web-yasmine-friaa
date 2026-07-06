@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.extensions import db
-from app.models import Fraud, Transaction
+from app.models import Fraud, Transaction, Compte
 from app.services.fraud_detector import FraudDetector
 from datetime import datetime
 
@@ -118,7 +118,62 @@ def rejeter_fraud(id):
     return jsonify({"message": "Faux positif enregistré, transaction validée"})
 
 
-# ── helpers ──────────────────────────────────────────────────────────
+# ======================
+# PUT /api/fraud/<id>/bloquer  → bloque le compte lié, statut RESOLU
+# ======================
+@fraud_bp.route("/api/fraud/<int:id>/bloquer", methods=["PUT"])
+@jwt_required()
+def bloquer_compte_fraud(id):
+    f = Fraud.query.get(id)
+    if not f:
+        return jsonify({"message": "Fraud record not found"}), 404
+
+    if f.statut_analyse != "CONFIRME":
+        return jsonify({"message": "Seule une fraude confirmée peut entraîner un blocage"}), 400
+
+    tx = Transaction.query.get(f.transaction_id)
+    if not tx:
+        return jsonify({"message": "Transaction associée introuvable"}), 404
+
+    compte = Compte.query.get(tx.compte_id)
+    if not compte:
+        return jsonify({"message": "Compte associé introuvable"}), 404
+
+    data = request.get_json() or {}
+    compte.statut    = "BLOQUE"
+    f.statut_analyse = "RESOLU"
+    f.commentaire    = data.get("commentaire", f.commentaire)
+
+    db.session.commit()
+    return jsonify({"message": f"Compte #{compte.id} bloqué, fraude résolue"})
+
+
+# ======================
+# PUT /api/fraud/<id>/reclassifier  → rouvre une fraude marquée FAUX_POSITIF
+# ======================
+@fraud_bp.route("/api/fraud/<int:id>/reclassifier", methods=["PUT"])
+@jwt_required()
+def reclassifier_fraud(id):
+    f = Fraud.query.get(id)
+    if not f:
+        return jsonify({"message": "Fraud record not found"}), 404
+
+    if f.statut_analyse != "FAUX_POSITIF":
+        return jsonify({"message": "Seule une fraude 'faux positif' peut être reclassifiée"}), 400
+
+    data = request.get_json() or {}
+    f.statut_analyse = "EN_COURS"
+    f.commentaire    = data.get("commentaire", f.commentaire)
+
+    tx = Transaction.query.get(f.transaction_id)
+    if tx:
+        tx.statut = "EN_ANALYSE"
+
+    db.session.commit()
+    return jsonify({"message": "Fraude reclassifiée, remise en analyse"})
+
+
+# ── helpers ──────────────────────────────────────────────
 def _fmt_full(f):
     # score_ml en Oracle est entre 0-100 → normaliser en 0-1 pour le frontend
     score_raw = float(f.score_ml or 0)
