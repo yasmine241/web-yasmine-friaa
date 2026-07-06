@@ -25,13 +25,9 @@ function renderActions(f) {
 
         case "CONFIRME":
             return `
-                <button class="btn btn-sm btn-warning me-1"
+                <button class="btn btn-sm btn-warning"
                         onclick="actionFraud(${f.id},'bloquer')">
                     🔒 Bloquer compte
-                </button>
-                <button class="btn btn-sm btn-outline-secondary"
-                        onclick="voirDetail(${f.id})">
-                    👁 Détails
                 </button>
             `;
 
@@ -44,12 +40,7 @@ function renderActions(f) {
             `;
 
         case "RESOLU":
-            return `
-                <button class="btn btn-sm btn-outline-secondary"
-                        onclick="voirDetail(${f.id})">
-                    👁 Détails
-                </button>
-            `;
+            return `<span class="text-muted">—</span>`;
 
         default:
             return "—";
@@ -137,10 +128,6 @@ async function actionFraud(id, action) {
     } catch(err) {
         showToast("Erreur : " + err.message, "danger");
     }
-}
-
-function voirDetail(id) {
-    showToast("Page de détail non implémentée", "info");
 }
 
 
