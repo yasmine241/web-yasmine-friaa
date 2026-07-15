@@ -8,18 +8,12 @@ from datetime import datetime
 transactions_bp = Blueprint("transactions", __name__)
 detector        = FraudDetector()
 
-
 def _normalize_score(score):
-    """
-    Normalise le score_risque en valeur entre 0 et 1.
-    Corrige les anciennes valeurs aberrantes stockées en base.
-    """
     score = float(score or 0)
-    if score > 100:
-        score = score / 10000   # ex: 9013 → 0.9013
-    elif score > 1:
-        score = score / 100     # ex: 90.13 → 0.9013
+    if score == 0.0:
+        return None
     return round(min(max(score, 0.0), 1.0), 4)
+    
 
 
 @transactions_bp.route("/api/transactions", methods=["GET"])
@@ -53,10 +47,12 @@ def create_transaction():
     score    = float(result["score"])
     score    = round(min(max(score, 0.0), 1.0), 4)   # sécurité : clamp 0-1
     is_fraud = result["fraud"]
-    status   = "EN_ANALYSE" if is_fraud else "VALIDEE"
+    if score >= 0.9:   status = "REJETEE"
+    elif is_fraud:     status = "EN_ANALYSE"
+    else:              status = "VALIDEE"
 
     new_tx = Transaction(
-        compte_id        = data["compte_id"],
+        compte_id = data.get("compte_id"),
         type_transaction = data["type_transaction"],
         montant          = data["montant"],
         devise           = data.get("devise", "EUR"),
