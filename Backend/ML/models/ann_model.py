@@ -1,13 +1,14 @@
+import os
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-# Chargement des données
-df = pd.read_csv("data/transactions.csv")
+DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "transactions.csv")
+df = pd.read_csv(DATA_PATH)
+df["PAYS_DESTINATION"] = df["PAYS_DESTINATION"].replace({"Corée du Nord": "Coree du Nord"})
 
-# Encodage
 le_type  = LabelEncoder()
 le_pays_o = LabelEncoder()
 le_pays_d = LabelEncoder()
@@ -18,16 +19,15 @@ df["PAYS_DESTINATION_ENC"] = le_pays_d.fit_transform(df["PAYS_DESTINATION"])
 
 df["FRAUDE"] = (df["SCORE_RISQUE"] >= 70).astype(int)
 
-X = df[["MONTANT", "TYPE_TRANSACTION_ENC", "PAYS_ORIGINE_ENC", "PAYS_DESTINATION_ENC", "SCORE_RISQUE"]]
+X = df[["MONTANT", "TYPE_TRANSACTION_ENC", "PAYS_ORIGINE_ENC", "PAYS_DESTINATION_ENC"]]
 y = df["FRAUDE"]
 
-# Normalisation (important pour les réseaux de neurones)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42, stratify=y)
 
-model = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=300, random_state=42)
+model = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42)
 model.fit(X_train, y_train)
 
 pred = model.predict(X_test)
