@@ -37,6 +37,51 @@ body {
 .badge-MOYEN                       { background:#ffc107; color:#000; }
 .badge-FAIBLE                      { background:#198754; color:#fff; }
 
+/* ── Sidebar : mobile-first ── */
+/* Base (mobile) : barre horizontale scrollable en haut de page */
+.sg-layout { flex-direction: column; }
+.sg-sidebar {
+  width: 100%;
+  min-height: auto;
+  background: var(--dark);
+  padding-top: 0;
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
+.sg-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: #ccc;
+  text-decoration: none;
+  padding: .6rem .9rem;
+  font-size: .82rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.sg-sidebar-link:hover { color: #fff; background: rgba(255,255,255,.06); }
+.kpi-value { font-size: 1.4rem; }
+
+/* À partir de 768px (tablette/desktop) : sidebar verticale fixe à gauche */
+@media (min-width: 768px) {
+  .sg-layout { flex-direction: row; }
+  .sg-sidebar {
+    width: 220px;
+    min-height: 100vh;
+    padding-top: 1rem;
+    flex-direction: column;
+    overflow-x: visible;
+  }
+  .sg-sidebar-link {
+    padding: .7rem 1.25rem;
+    font-size: .93rem;
+  }
+  .kpi-value { font-size: initial; }
+}
+
 /* ── Tables ── */
 .table th { background: #f8f9fa; font-weight: 600; }
 .table-hover tbody tr:hover { background: #fff3f3; }

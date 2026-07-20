@@ -25,7 +25,7 @@ function renderActions(f) {
 
         case "CONFIRME":
             return `
-                <button class="btn btn-sm btn-warning"
+                <button class="btn btn-sm btn-warning me-1"
                         onclick="actionFraud(${f.id},'bloquer')">
                     🔒 Bloquer compte
                 </button>
@@ -40,7 +40,7 @@ function renderActions(f) {
             `;
 
         case "RESOLU":
-            return `<span class="text-muted">—</span>`;
+            return `<span class="text-muted small">Traité</span>`;
 
         default:
             return "—";
