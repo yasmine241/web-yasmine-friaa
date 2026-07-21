@@ -56,8 +56,15 @@ def get_pending_frauds():
 @fraud_bp.route("/api/fraud", methods=["GET"])
 @jwt_required()
 def get_frauds():
-    frauds = Fraud.query.order_by(Fraud.date_detection.desc()).all()
-    return jsonify([_fmt_full(f) for f in frauds])
+    page     = request.args.get("page", 1, type=int)
+    per_page = min(request.args.get("per_page", 50, type=int), 200)
+    pagination = Fraud.query.order_by(Fraud.date_detection.desc()) \
+                             .paginate(page=page, per_page=per_page, error_out=False)
+    return jsonify({
+        "items": [_fmt_full(f) for f in pagination.items],
+        "page": pagination.page, "per_page": per_page,
+        "total": pagination.total, "total_pages": pagination.pages
+    })
 
 
 # ======================
@@ -145,7 +152,7 @@ def bloquer_compte_fraud(id):
     f.commentaire    = data.get("commentaire", f.commentaire)
 
     db.session.commit()
-    return jsonify({"message": f"Compte #{compte.id} bloqué, fraude résolue"})
+    return jsonify({"message": f"Compte #{compte.compte_id} bloqué, fraude résolue"})
 
 
 # ======================

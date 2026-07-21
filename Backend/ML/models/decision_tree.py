@@ -1,14 +1,13 @@
-import os
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import LabelEncoder
 
-DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "transactions.csv")
-df = pd.read_csv(DATA_PATH)
-df["PAYS_DESTINATION"] = df["PAYS_DESTINATION"].replace({"Corée du Nord": "Coree du Nord"})
+# Chargement des données
+df = pd.read_csv("data/transactions.csv")
 
+# Encodage des colonnes catégorielles
 le_type = LabelEncoder()
 le_pays_o = LabelEncoder()
 le_pays_d = LabelEncoder()
@@ -17,15 +16,16 @@ df["TYPE_TRANSACTION_ENC"] = le_type.fit_transform(df["TYPE_TRANSACTION"])
 df["PAYS_ORIGINE_ENC"]     = le_pays_o.fit_transform(df["PAYS_ORIGINE"])
 df["PAYS_DESTINATION_ENC"] = le_pays_d.fit_transform(df["PAYS_DESTINATION"])
 
+# Création de la cible : fraude = score_risque >= 70
 df["FRAUDE"] = (df["SCORE_RISQUE"] >= 70).astype(int)
 
-# 4 features (SCORE_RISQUE exclu des features, utilise uniquement pour le label)
-X = df[["MONTANT", "TYPE_TRANSACTION_ENC", "PAYS_ORIGINE_ENC", "PAYS_DESTINATION_ENC"]]
+# Features disponibles dans le CSV
+X = df[["MONTANT", "TYPE_TRANSACTION_ENC", "PAYS_ORIGINE_ENC", "PAYS_DESTINATION_ENC"]]  # SCORE_RISQUE retiré (fuite de donnees : il sert a construire la cible FRAUDE)
 y = df["FRAUDE"]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-model = DecisionTreeClassifier(random_state=42, max_depth=10)
+model = DecisionTreeClassifier(random_state=42)
 model.fit(X_train, y_train)
 
 pred = model.predict(X_test)

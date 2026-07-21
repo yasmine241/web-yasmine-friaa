@@ -27,8 +27,8 @@ def login():
         token = create_access_token(identity="admin")
         return jsonify({
             "message": "Login successful", "token": token,
-            "role": "yasmine", "client_id": 0,
-            "nom": "Yasmine", "prenom": "Banquier"
+            "role": "administrateur", "client_id": 0,
+            "nom": "Admin", "prenom": "Système"
         }), 200
 
     try:
@@ -56,8 +56,9 @@ def login():
             "nom": client.nom, "prenom": client.prenom
         }), 200
 
-    except Exception as e:
-        return jsonify({"message": f"Erreur base de données : {str(e)}"}), 500
+    except Exception:
+        current_app.logger.exception("Erreur lors du login")
+        return jsonify({"message": "Erreur serveur, réessayez plus tard"}), 500
 
 
 @auth_bp.route("/api/reset-password", methods=["POST"])

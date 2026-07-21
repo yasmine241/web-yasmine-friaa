@@ -1,35 +1,30 @@
 import os, joblib, numpy as np
 
-MODEL_PATH    = os.path.join(os.path.dirname(__file__), "fraud_model.pkl")
-ENCODERS_PATH = os.path.join(os.path.dirname(__file__), "label_encoders.pkl")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "fraud_model.pkl")
 
+PAYS_LIST = ["Allemagne","Belgique","Brésil","Chine","Espagne","Etats-Unis",
+             "France","Inde","Italie","Japon","Maroc","Pays-Bas","Portugal",
+             "Royaume-Uni","Russie","Sénégal","Suisse","Tunisie","Turquie"]
+TYPE_LIST = ["DEPOT","PAIEMENT_EN_LIGNE","RETRAIT","TRANSACTION_MOBILE","VIREMENT"]
 
-def encode(value, encoder):
-    """Encode une valeur categorielle avec le LabelEncoder entraine.
-    Retourne 0 si la valeur n'a jamais ete vue a l'entrainement
-    (evite un crash sur une categorie inconnue en production)."""
-    try:
-        return int(encoder.transform([value])[0])
-    except ValueError:
-        return 0
-
+def encode(value, lst):
+    try:    return lst.index(value)
+    except: return 0
 
 class FraudDetector:
     def __init__(self):
         self.model = None
-        self.encoders = None
         self._load_model()
 
     def _load_model(self):
-        if os.path.exists(MODEL_PATH) and os.path.exists(ENCODERS_PATH):
+        if os.path.exists(MODEL_PATH):
             try:
                 self.model = joblib.load(MODEL_PATH)
-                self.encoders = joblib.load(ENCODERS_PATH)
-                print("Modele ML et encodeurs charges")
+                print(f"✅ Modèle ML chargé")
             except Exception as e:
-                print(f"Impossible de charger le modele : {e}")
+                print(f"⚠️ Impossible de charger le modèle : {e}")
         else:
-            print("fraud_model.pkl ou label_encoders.pkl introuvable - mode regles actif")
+            print("⚠️ fraud_model.pkl introuvable — mode règles actif")
 
     def predict(self, transaction: dict) -> dict:
         montant  = float(transaction.get("montant", 0))
@@ -37,12 +32,12 @@ class FraudDetector:
         pays_d   = transaction.get("pays_destination", "France")
         type_tx  = transaction.get("type_transaction", "VIREMENT")
 
-        if self.model is not None and self.encoders is not None:
+        if self.model is not None:
             features = np.array([[
                 montant,
-                encode(type_tx, self.encoders["type"]),
-                encode(pays_o,  self.encoders["pays_o"]),
-                encode(pays_d,  self.encoders["pays_d"]),
+                encode(type_tx, TYPE_LIST),
+                encode(pays_o,  PAYS_LIST),
+                encode(pays_d,  PAYS_LIST)
             ]])
             proba = self.model.predict_proba(features)[0][1]
             return {"score": round(float(proba), 2), "fraud": bool(proba >= 0.7)}
@@ -52,7 +47,6 @@ class FraudDetector:
 
     @staticmethod
     def _rule_score(montant, pays_o, pays_d):
-        """Repli utilise uniquement si le modele ML n'a pas pu etre charge."""
         score = 0.0
         if montant > 5000:  score += 0.4
         if montant > 10000: score += 0.3

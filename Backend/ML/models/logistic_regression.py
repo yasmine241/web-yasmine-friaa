@@ -18,7 +18,7 @@ df["PAYS_DESTINATION_ENC"] = le_pays_d.fit_transform(df["PAYS_DESTINATION"])
 
 df["FRAUDE"] = (df["SCORE_RISQUE"] >= 70).astype(int)
 
-X = df[["MONTANT", "TYPE_TRANSACTION_ENC", "PAYS_ORIGINE_ENC", "PAYS_DESTINATION_ENC", "SCORE_RISQUE"]]
+X = df[["MONTANT", "TYPE_TRANSACTION_ENC", "PAYS_ORIGINE_ENC", "PAYS_DESTINATION_ENC"]]  # SCORE_RISQUE retiré (fuite de donnees : il sert a construire la cible FRAUDE)
 y = df["FRAUDE"]
 
 scaler = StandardScaler()

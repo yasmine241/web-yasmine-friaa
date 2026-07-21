@@ -8,7 +8,14 @@ comptes_bp = Blueprint("comptes", __name__)
 @comptes_bp.route("/api/comptes", methods=["GET"])
 @jwt_required()
 def get_comptes():
-    return jsonify([_fmt(c) for c in Compte.query.all()])
+    page     = request.args.get("page", 1, type=int)
+    per_page = min(request.args.get("per_page", 50, type=int), 200)
+    pagination = Compte.query.order_by(Compte.compte_id).paginate(page=page, per_page=per_page, error_out=False)
+    return jsonify({
+        "items": [_fmt(c) for c in pagination.items],
+        "page": pagination.page, "per_page": per_page,
+        "total": pagination.total, "total_pages": pagination.pages
+    })
 
 @comptes_bp.route("/api/comptes/<int:id>", methods=["GET"])
 @jwt_required()
@@ -26,7 +33,12 @@ def get_comptes_by_client(client_id):
 @comptes_bp.route("/api/comptes", methods=["POST"])
 @jwt_required()
 def create_compte():
-    data = request.get_json()
+    data = request.get_json() or {}
+    required = ["client_id", "numero_compte"]
+    for field in required:
+        if not data.get(field):
+            return jsonify({"message": f"Champ requis manquant : {field}"}), 400
+
     new_compte = Compte(
         client_id     = data["client_id"],
         numero_compte = data["numero_compte"],

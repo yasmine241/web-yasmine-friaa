@@ -1,7 +1,17 @@
-from flask import Flask
+from flask import Flask, request, g
 from flask_cors import CORS
 from config import Config
 from app.extensions import db, jwt
+import logging
+import time
+
+# Logger dédié aux mesures de performance (temps de réponse par requête)
+perf_logger = logging.getLogger("sgsecurebank.perf")
+perf_logger.setLevel(logging.INFO)
+if not perf_logger.handlers:
+    _handler = logging.FileHandler("performance.log", encoding="utf-8")
+    _handler.setFormatter(logging.Formatter("%(asctime)s | %(message)s"))
+    perf_logger.addHandler(_handler)
 
 
 def create_app():
@@ -21,6 +31,26 @@ def create_app():
         response.headers["Access-Control-Allow-Origin"]  = "http://localhost:8080"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        return response
+
+    # ── Mesure du temps de réponse par requête ──
+    # Sert de base aux mesures de performance (temps de réponse, endpoints
+    # les plus lents) demandées dans le rapport. Écrit dans performance.log
+    # et renvoie le temps mesuré dans l'en-tête X-Response-Time-ms (pratique
+    # pour l'inspecter depuis les DevTools réseau du navigateur).
+    @app.before_request
+    def _start_timer():
+        g._start_time = time.perf_counter()
+
+    @app.after_request
+    def _log_response_time(response):
+        if hasattr(g, "_start_time"):
+            elapsed_ms = (time.perf_counter() - g._start_time) * 1000
+            response.headers["X-Response-Time-ms"] = f"{elapsed_ms:.1f}"
+            perf_logger.info(
+                f"{request.method} {request.path} -> {response.status_code} "
+                f"in {elapsed_ms:.1f} ms"
+            )
         return response
 
     db.init_app(app)

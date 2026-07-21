@@ -42,8 +42,14 @@ def create_client():
 @clients_bp.route("/api/clients", methods=["GET"])
 @jwt_required()
 def get_clients():
-    clients = Client.query.all()
-    return jsonify([_fmt(c) for c in clients])
+    page     = request.args.get("page", 1, type=int)
+    per_page = min(request.args.get("per_page", 50, type=int), 200)
+    pagination = Client.query.order_by(Client.client_id).paginate(page=page, per_page=per_page, error_out=False)
+    return jsonify({
+        "items": [_fmt(c) for c in pagination.items],
+        "page": pagination.page, "per_page": per_page,
+        "total": pagination.total, "total_pages": pagination.pages
+    })
 
 @clients_bp.route("/api/clients/<int:id>", methods=["GET"])
 @jwt_required()

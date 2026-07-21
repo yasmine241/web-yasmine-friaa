@@ -25,8 +25,17 @@ def _normalize_score(score):
 @transactions_bp.route("/api/transactions", methods=["GET"])
 @jwt_required()
 def get_transactions():
-    txs = Transaction.query.order_by(Transaction.date_transaction.desc()).all()
-    return jsonify([_fmt(t) for t in txs])
+    page     = request.args.get("page", 1, type=int)
+    per_page = min(request.args.get("per_page", 50, type=int), 200)  # plafond anti-abus
+    pagination = Transaction.query.order_by(Transaction.date_transaction.desc()) \
+                                   .paginate(page=page, per_page=per_page, error_out=False)
+    return jsonify({
+        "items":       [_fmt(t) for t in pagination.items],
+        "page":        pagination.page,
+        "per_page":    per_page,
+        "total":       pagination.total,
+        "total_pages": pagination.pages
+    })
 
 
 @transactions_bp.route("/api/transactions/<int:id>", methods=["GET"])
@@ -41,9 +50,20 @@ def get_transaction(id):
 @transactions_bp.route("/api/transactions", methods=["POST"])
 @jwt_required()
 def create_transaction():
-    data   = request.get_json()
+    data = request.get_json() or {}
+    required = ["compte_id", "montant", "type_transaction"]
+    for field in required:
+        if data.get(field) in (None, ""):
+            return jsonify({"message": f"Champ requis manquant : {field}"}), 400
+    try:
+        montant = float(data["montant"])
+    except (TypeError, ValueError):
+        return jsonify({"message": "Le champ montant doit être numérique"}), 400
+    if montant <= 0:
+        return jsonify({"message": "Le montant doit être strictement positif"}), 400
+
     result = detector.predict({
-        "montant":          data["montant"],
+        "montant":          montant,
         "pays_origine":     data.get("pays_origine",     "France"),
         "pays_destination": data.get("pays_destination", "France"),
         "type_transaction": data.get("type_transaction", "VIREMENT")
@@ -58,7 +78,7 @@ def create_transaction():
     new_tx = Transaction(
         compte_id        = data["compte_id"],
         type_transaction = data["type_transaction"],
-        montant          = data["montant"],
+        montant          = montant,
         devise           = data.get("devise", "EUR"),
         pays_origine     = data.get("pays_origine",     "France"),
         pays_destination = data.get("pays_destination", "France"),
