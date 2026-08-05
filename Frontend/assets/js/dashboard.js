@@ -59,6 +59,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     requireAuth();
     await loadComponent("navbar",  "../components/navbar.html");
     await loadComponent("sidebar", "../components/sidebar.html");
+    await loadComponent("footer",  "../components/footer.html");
+    await loadComponent("cookieBanner", "../components/cookie-banner.html");
     loadDashboard();
     loadRecentFrauds();
     setInterval(() => { loadDashboard(); loadRecentFrauds(); }, 10000);

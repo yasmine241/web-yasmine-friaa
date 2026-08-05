@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from app.extensions import db
 from app.models import Transaction, Fraud
 from app.services.fraud_detector import FraudDetector
-from datetime import datetime
+from datetime import datetime, timezone
 
 transactions_bp = Blueprint("transactions", __name__)
 detector        = FraudDetector()
@@ -41,7 +41,7 @@ def get_transactions():
 @transactions_bp.route("/api/transactions/<int:id>", methods=["GET"])
 @jwt_required()
 def get_transaction(id):
-    t = Transaction.query.get(id)
+    t = db.session.get(Transaction, id)
     if not t:
         return jsonify({"message": "Transaction not found"}), 404
     return jsonify(_fmt(t))
@@ -82,7 +82,7 @@ def create_transaction():
         devise           = data.get("devise", "EUR"),
         pays_origine     = data.get("pays_origine",     "France"),
         pays_destination = data.get("pays_destination", "France"),
-        date_transaction = datetime.utcnow(),
+        date_transaction = datetime.now(timezone.utc),
         ip_adresse       = request.remote_addr,
         statut           = status,
         score_risque     = score   # CORRECTION : stocké en 0-1 (ex: 0.9013)
@@ -97,7 +97,7 @@ def create_transaction():
             type_fraude    = "TRANSACTION_INHABITUELLE",
             niveau_risque  = niveau,
             score_ml       = score,   # CORRECTION : stocké en 0-1
-            date_detection = datetime.utcnow(),
+            date_detection = datetime.now(timezone.utc),
             statut_analyse = "EN_COURS"
         ))
         db.session.commit()

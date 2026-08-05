@@ -14,10 +14,12 @@ function renderActions(f) {
         case "EN_COURS":
             return `
                 <button class="btn btn-sm btn-danger me-1"
+                        aria-label="Confirmer la fraude numéro ${f.id}"
                         onclick="actionFraud(${f.id},'valider')">
                     ✅ Confirmer
                 </button>
                 <button class="btn btn-sm btn-secondary"
+                        aria-label="Marquer la fraude numéro ${f.id} comme faux positif"
                         onclick="actionFraud(${f.id},'rejeter')">
                     ❌ Faux positif
                 </button>
@@ -26,6 +28,7 @@ function renderActions(f) {
         case "CONFIRME":
             return `
                 <button class="btn btn-sm btn-warning me-1"
+                        aria-label="Bloquer le compte lié à la fraude numéro ${f.id}"
                         onclick="actionFraud(${f.id},'bloquer')">
                     🔒 Bloquer compte
                 </button>
@@ -34,6 +37,7 @@ function renderActions(f) {
         case "FAUX_POSITIF":
             return `
                 <button class="btn btn-sm btn-outline-primary"
+                        aria-label="Reclassifier la fraude numéro ${f.id}"
                         onclick="actionFraud(${f.id},'reclassifier')">
                     🔄 Reclassifier
                 </button>
@@ -60,7 +64,8 @@ function formatScoreML(score) {
 
 async function loadFrauds() {
     try {
-        const frauds = await getFrauds();
+        const response = await getFrauds();
+        const frauds = response?.items ?? response; // backend paginé : {items:[...]}
         const tbody  = document.getElementById("fraudTableBody");
         if (!tbody) return;
 
@@ -167,5 +172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     requireAuth();
     await loadComponent("navbar",  "../components/navbar.html");
     await loadComponent("sidebar", "../components/sidebar.html");
+    await loadComponent("footer",  "../components/footer.html");
+    await loadComponent("cookieBanner", "../components/cookie-banner.html");
     loadFrauds();
 });

@@ -1,6 +1,7 @@
 async function loadClients() {
     try {
-        const data      = await getClients();
+        const response  = await getClients();
+        const data      = response?.items ?? response; // backend paginé : {items:[...]}
         const container = document.getElementById("clientsList");
         if (!container) return;
         if (!data || data.length === 0) {
@@ -15,48 +16,20 @@ async function loadClients() {
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge-statut badge-${c.statut}">${c.statut}</span>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteClientUI(${c.id})">🗑</button>
+                    <span class="text-muted small">#${c.id}</span>
                 </div>
             </div>
         `).join("");
-    } catch(err) { console.error("Erreur clients:", err); }
-}
-
-async function deleteClientUI(id) {
-    if (!confirm("Supprimer ce client ?")) return;
-    try {
-        await deleteClient(id);
-        showToast("Client supprimé");
-        loadClients();
-    } catch(err) { showToast("Erreur : " + err.message, "danger"); }
-}
-
-async function submitClient(e) {
-    e.preventDefault();
-    const data = {
-        nom:            document.getElementById("nom").value,
-        prenom:         document.getElementById("prenom").value,
-        email:          document.getElementById("email").value,
-        mot_de_passe:   document.getElementById("motDePasse").value,
-        telephone:      document.getElementById("telephone").value,
-        date_naissance: document.getElementById("dateNaissance").value,
-        adresse:        document.getElementById("adresse").value,
-        pays:           document.getElementById("pays").value || "France"
-    };
-    try {
-        await createClient(data);
-        showToast("Client créé ✅");
-        document.getElementById("clientForm").reset();
-        document.getElementById("addClientModal").style.display = "none";
-        loadClients();
-    } catch(err) { showToast("Erreur : " + err.message, "danger"); }
+    } catch (err) {
+        console.error("Erreur clients:", err);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
     requireAuth();
     await loadComponent("navbar",  "../components/navbar.html");
     await loadComponent("sidebar", "../components/sidebar.html");
+    await loadComponent("footer",  "../components/footer.html");
+    await loadComponent("cookieBanner", "../components/cookie-banner.html");
     loadClients();
-    const form = document.getElementById("clientForm");
-    if (form) form.addEventListener("submit", submitClient);
 });

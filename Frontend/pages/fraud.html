@@ -21,10 +21,12 @@
             <h5 class="fw-bold mb-3">🔍 Vérification manuelle</h5>
             <div class="row g-2">
                 <div class="col-6">
-                    <input id="amount" class="form-control" placeholder="Montant (€)" type="number" min="0" step="0.01">
+                    <label for="amount" class="form-label visually-hidden">Montant en euros</label>
+                    <input id="amount" class="form-control" placeholder="Montant (€)" type="number" min="0" step="0.01" aria-label="Montant en euros">
                 </div>
                 <div class="col-6">
-                    <select id="typeTransaction" class="form-select">
+                    <label for="typeTransaction" class="form-label visually-hidden">Type de transaction</label>
+                    <select id="typeTransaction" class="form-select" aria-label="Type de transaction">
                         <option value="VIREMENT">Virement</option>
                         <option value="PAIEMENT_EN_LIGNE">Paiement en ligne</option>
                         <option value="RETRAIT">Retrait</option>
@@ -33,10 +35,12 @@
                     </select>
                 </div>
                 <div class="col-6">
-                    <input id="paysOrigine"     class="form-control" placeholder="Pays origine"      value="France">
+                    <label for="paysOrigine" class="form-label visually-hidden">Pays d'origine</label>
+                    <input id="paysOrigine"     class="form-control" placeholder="Pays origine"      value="France" aria-label="Pays d'origine">
                 </div>
                 <div class="col-6">
-                    <input id="paysDestination" class="form-control" placeholder="Pays destination"  value="France">
+                    <label for="paysDestination" class="form-label visually-hidden">Pays de destination</label>
+                    <input id="paysDestination" class="form-control" placeholder="Pays destination"  value="France" aria-label="Pays de destination">
                 </div>
             </div>
             <button class="btn btn-danger mt-3 w-100 fw-bold" onclick="checkFraud()">Analyser</button>
@@ -68,6 +72,9 @@
 
     </div>
 </div>
+
+<div id="footer"></div>
+<div id="cookieBanner"></div>
 
 <script src="../assets/js/config.js"></script>
 <script src="../assets/js/api.js"></script>

@@ -36,12 +36,24 @@ def login():
         if not client:
             return jsonify({"message": "Identifiants incorrects"}), 401
 
-        pwd_ok = False
+        # CORRECTION (trouvée par les tests unitaires, cf. rapport - tests) :
+        # generate_password_hash() de Werkzeug (utilisé par create_client() et
+        # reset_password() ci-dessous) produit des hachages au format
+        # "scrypt:..." ou "pbkdf2:...", jamais au format bcrypt "$2b$...".
+        # L'ancienne condition raw.startswith("$2b$") ne correspondait donc
+        # JAMAIS aux mots de passe reellement generes par l'application, et
+        # tombait sur une comparaison en clair qui echouait systematiquement
+        # (ou faisait planter check_password_hash() avec une erreur
+        # "Invalid hash method" si un hachage bcrypt etait present en base).
+        # On utilise desormais uniquement check_password_hash(), qui sait
+        # reconnaitre nativement le format genere par l'application et qui
+        # renvoie False (au lieu de lever une exception) sur un hachage
+        # invalide ou dans un format non reconnu.
         raw = client.mot_de_passe or ""
-        if raw.startswith("$2b$") and len(raw) == 60:
+        try:
             pwd_ok = check_password_hash(raw, password)
-        else:
-            pwd_ok = (password == raw)  # CORRECTION : suppression du "in raw" (faille de comparaison partielle)
+        except ValueError:
+            pwd_ok = False
 
         if not pwd_ok:
             return jsonify({"message": "Identifiants incorrects"}), 401

@@ -21,10 +21,12 @@
             <form id="txForm">
                 <div class="row g-2">
                     <div class="col-6">
-                        <input id="compteId" class="form-control" placeholder="ID Compte" type="number" required>
+                        <label for="compteId" class="form-label visually-hidden">ID du compte</label>
+                        <input id="compteId" class="form-control" placeholder="ID Compte" type="number" required aria-label="ID du compte">
                     </div>
                     <div class="col-6">
-                        <select id="typeTx" class="form-select" required>
+                        <label for="typeTx" class="form-label visually-hidden">Type de transaction</label>
+                        <select id="typeTx" class="form-select" aria-label="Type de transaction">
                             <option value="VIREMENT">Virement</option>
                             <option value="PAIEMENT_EN_LIGNE">Paiement en ligne</option>
                             <option value="RETRAIT">Retrait</option>
@@ -33,20 +35,24 @@
                         </select>
                     </div>
                     <div class="col-6">
-                        <input id="montant" class="form-control" placeholder="Montant" type="number" step="0.01" required>
+                        <label for="montant" class="form-label visually-hidden">Montant</label>
+                        <input id="montant" class="form-control" placeholder="Montant" type="number" step="0.01" required aria-label="Montant">
                     </div>
                     <div class="col-6">
-                        <select id="devise" class="form-select">
+                        <label for="devise" class="form-label visually-hidden">Devise</label>
+                        <select id="devise" class="form-select" aria-label="Devise">
                             <option value="EUR">EUR</option>
                             <option value="USD">USD</option>
                             <option value="GBP">GBP</option>
                         </select>
                     </div>
                     <div class="col-6">
-                        <input id="paysO" class="form-control" placeholder="Pays origine" value="France">
+                        <label for="paysO" class="form-label visually-hidden">Pays d'origine</label>
+                        <input id="paysO" class="form-control" placeholder="Pays origine" value="France" aria-label="Pays d'origine">
                     </div>
                     <div class="col-6">
-                        <input id="paysD" class="form-control" placeholder="Pays destination" value="France">
+                        <label for="paysD" class="form-label visually-hidden">Pays de destination</label>
+                        <input id="paysD" class="form-control" placeholder="Pays destination" value="France" aria-label="Pays de destination">
                     </div>
                 </div>
                 <button id="submitTxBtn" type="submit" class="btn btn-primary mt-3 w-100 fw-bold">Créer la transaction</button>
@@ -78,6 +84,9 @@
 
     </div>
 </div>
+
+<div id="footer"></div>
+<div id="cookieBanner"></div>
 
 <script src="../assets/js/config.js"></script>
 <script src="../assets/js/api.js"></script>

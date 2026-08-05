@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ============================================================
 # CLIENTS
@@ -16,7 +16,7 @@ class Client(db.Model):
     date_naissance = db.Column(db.Date)
     adresse        = db.Column(db.String(255))
     pays           = db.Column(db.String(100))
-    date_creation  = db.Column(db.DateTime, default=datetime.utcnow)
+    date_creation  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     statut         = db.Column(db.String(20), default="ACTIF", index=True)
 
     comptes = db.relationship("Compte", backref="client", lazy="select")
@@ -34,7 +34,7 @@ class Compte(db.Model):
     type_compte    = db.Column(db.String(20), default="COURANT")
     solde          = db.Column(db.Float, default=0.0)
     devise         = db.Column(db.String(10), default="EUR")
-    date_ouverture = db.Column(db.Date, default=datetime.utcnow)
+    date_ouverture = db.Column(db.Date, default=lambda: datetime.now(timezone.utc))
     statut         = db.Column(db.String(20), default="ACTIF", index=True)
 
     transactions = db.relationship("Transaction", backref="compte", lazy="select")
@@ -53,7 +53,7 @@ class Transaction(db.Model):
     devise              = db.Column(db.String(10), default="EUR")
     pays_origine        = db.Column(db.String(100), nullable=False)
     pays_destination    = db.Column(db.String(100), nullable=False)
-    date_transaction    = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    date_transaction    = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     ip_adresse          = db.Column(db.String(50))
     statut              = db.Column(db.String(20), default="EN_ANALYSE", index=True)
     score_risque        = db.Column(db.Float)
@@ -72,7 +72,7 @@ class Fraud(db.Model):
     type_fraude     = db.Column(db.String(50))
     niveau_risque   = db.Column(db.String(20))
     score_ml        = db.Column(db.Float)
-    date_detection  = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    date_detection  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     statut_analyse  = db.Column(db.String(20), default="EN_COURS", index=True)
     analyste_id     = db.Column(db.String(50))
     commentaire     = db.Column(db.String(500))

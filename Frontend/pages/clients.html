@@ -39,28 +39,36 @@
                 <form id="clientForm">
                     <div class="row g-2">
                         <div class="col-6">
-                            <input id="nom"    class="form-control" placeholder="Nom"    required>
+                            <label for="nom" class="form-label visually-hidden">Nom</label>
+                            <input id="nom"    class="form-control" placeholder="Nom"    required aria-label="Nom">
                         </div>
                         <div class="col-6">
-                            <input id="prenom" class="form-control" placeholder="Prénom" required>
+                            <label for="prenom" class="form-label visually-hidden">Prénom</label>
+                            <input id="prenom" class="form-control" placeholder="Prénom" required aria-label="Prénom">
                         </div>
                         <div class="col-12">
-                            <input id="email"  class="form-control" placeholder="Email" type="email" required>
+                            <label for="email" class="form-label visually-hidden">Email</label>
+                            <input id="email"  class="form-control" placeholder="Email" type="email" required aria-label="Email">
                         </div>
                         <div class="col-12">
-                            <input id="motDePasse" class="form-control" placeholder="Mot de passe" type="password" required>
+                            <label for="motDePasse" class="form-label visually-hidden">Mot de passe</label>
+                            <input id="motDePasse" class="form-control" placeholder="Mot de passe" type="password" required aria-label="Mot de passe">
                         </div>
                         <div class="col-6">
-                            <input id="telephone"     class="form-control" placeholder="Téléphone">
+                            <label for="telephone" class="form-label visually-hidden">Téléphone</label>
+                            <input id="telephone"     class="form-control" placeholder="Téléphone" aria-label="Téléphone">
                         </div>
                         <div class="col-6">
-                            <input id="dateNaissance" class="form-control" type="date" required>
+                            <label for="dateNaissance" class="form-label visually-hidden">Date de naissance</label>
+                            <input id="dateNaissance" class="form-control" type="date" required aria-label="Date de naissance">
                         </div>
                         <div class="col-12">
-                            <input id="adresse" class="form-control" placeholder="Adresse">
+                            <label for="adresse" class="form-label visually-hidden">Adresse</label>
+                            <input id="adresse" class="form-control" placeholder="Adresse" aria-label="Adresse">
                         </div>
                         <div class="col-12">
-                            <input id="pays" class="form-control" placeholder="Pays" value="France">
+                            <label for="pays" class="form-label visually-hidden">Pays</label>
+                            <input id="pays" class="form-control" placeholder="Pays" value="France" aria-label="Pays">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 mt-3 fw-bold">Créer le client</button>
@@ -69,6 +77,9 @@
         </div>
     </div>
 </div>
+
+<div id="footer"></div>
+<div id="cookieBanner"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/config.js"></script>

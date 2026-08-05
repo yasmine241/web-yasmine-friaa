@@ -20,7 +20,7 @@ def get_comptes():
 @comptes_bp.route("/api/comptes/<int:id>", methods=["GET"])
 @jwt_required()
 def get_compte(id):
-    c = Compte.query.get(id)
+    c = db.session.get(Compte, id)
     if not c:
         return jsonify({"message": "Compte not found"}), 404
     return jsonify({**_fmt(c), "date_ouverture": str(c.date_ouverture)})
@@ -54,7 +54,7 @@ def create_compte():
 @comptes_bp.route("/api/comptes/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_compte(id):
-    c = Compte.query.get(id)
+    c = db.session.get(Compte, id)
     if not c:
         return jsonify({"message": "Compte not found"}), 404
     data = request.get_json()
@@ -67,7 +67,7 @@ def update_compte(id):
 @comptes_bp.route("/api/comptes/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_compte(id):
-    c = Compte.query.get(id)
+    c = db.session.get(Compte, id)
     if not c:
         return jsonify({"message": "Compte not found"}), 404
     db.session.delete(c)

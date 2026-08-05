@@ -32,8 +32,15 @@
     </div>
 </div>
 
+<div id="footer"></div>
+<div id="cookieBanner"></div>
+
 <script src="../assets/js/config.js"></script>
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+    loadComponent("footer",       "../components/footer.html");
+    loadComponent("cookieBanner", "../components/cookie-banner.html");
+});
 // login.html n'utilise pas requireAuth()
 async function login(event) {
     event.preventDefault();
@@ -52,7 +59,7 @@ async function login(event) {
 
         if (data.token) {
             setToken(data.token);
-            localStorage.setItem("user", JSON.stringify({ nom: data.nom, prenom: data.prenom }));
+            localStorage.setItem("user", JSON.stringify({ nom: data.nom, prenom: data.prenom, client_id: data.client_id }));
             window.location.href = "dashboard.html";
         } else {
             errEl.textContent    = data.message || "Identifiants incorrects";

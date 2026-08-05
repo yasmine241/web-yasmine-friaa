@@ -8,7 +8,8 @@ function formatRisk(score) {
 
 async function loadTransactions() {
     try {
-        const data  = await getTransactions();
+        const response = await getTransactions();
+        const data  = response?.items ?? response; // backend paginé : {items:[...]}
         const tbody = document.getElementById("transactionsTable");
 
         if (!tbody) return;
@@ -88,6 +89,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadComponent("navbar",  "../components/navbar.html");
     await loadComponent("sidebar", "../components/sidebar.html");
+    await loadComponent("footer",  "../components/footer.html");
+    await loadComponent("cookieBanner", "../components/cookie-banner.html");
 
     loadTransactions();
 

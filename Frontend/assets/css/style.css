@@ -30,10 +30,13 @@ body {
 }
 .badge-VALIDEE, .badge-RESOLU      { background:#198754; color:#fff; }
 .badge-REJETEE, .badge-CONFIRME    { background:#dc3545; color:#fff; }
-.badge-EN_ANALYSE, .badge-EN_COURS { background:#fd7e14; color:#fff; }
+/* CORRECTION accessibilité (contraste) : le texte blanc sur fond orange #fd7e14
+   ne respecte pas le ratio minimal WCAG AA (2.57:1, seuil requis 4.5:1 pour
+   du texte de cette taille). Passage en texte noir : ratio 8.17:1. */
+.badge-EN_ANALYSE, .badge-EN_COURS { background:#fd7e14; color:#000; }
 .badge-FAUX_POSITIF                { background:#0dcaf0; color:#000; }
 .badge-CRITIQUE                    { background:#dc3545; color:#fff; }
-.badge-ELEVE                       { background:#fd7e14; color:#fff; }
+.badge-ELEVE                       { background:#fd7e14; color:#000; }
 .badge-MOYEN                       { background:#ffc107; color:#000; }
 .badge-FAIBLE                      { background:#198754; color:#fff; }
 

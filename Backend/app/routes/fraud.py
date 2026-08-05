@@ -73,7 +73,7 @@ def get_frauds():
 @fraud_bp.route("/api/fraud/<int:id>", methods=["GET"])
 @jwt_required()
 def get_fraud(id):
-    f = Fraud.query.get(id)
+    f = db.session.get(Fraud, id)
     if not f:
         return jsonify({"message": "Fraud record not found"}), 404
     return jsonify(_fmt_full(f))
@@ -85,7 +85,7 @@ def get_fraud(id):
 @fraud_bp.route("/api/fraud/<int:id>/valider", methods=["PUT"])
 @jwt_required()
 def valider_fraud(id):
-    f = Fraud.query.get(id)
+    f = db.session.get(Fraud, id)
     if not f:
         return jsonify({"message": "Fraud record not found"}), 404
 
@@ -94,7 +94,7 @@ def valider_fraud(id):
     f.analyste_id    = data.get("analyste_id", f.analyste_id)
     f.commentaire    = data.get("commentaire",  f.commentaire)
 
-    tx = Transaction.query.get(f.transaction_id)
+    tx = db.session.get(Transaction, f.transaction_id)
     if tx:
         tx.statut = "REJETEE"
 
@@ -108,7 +108,7 @@ def valider_fraud(id):
 @fraud_bp.route("/api/fraud/<int:id>/rejeter", methods=["PUT"])
 @jwt_required()
 def rejeter_fraud(id):
-    f = Fraud.query.get(id)
+    f = db.session.get(Fraud, id)
     if not f:
         return jsonify({"message": "Fraud record not found"}), 404
 
@@ -117,7 +117,7 @@ def rejeter_fraud(id):
     f.analyste_id    = data.get("analyste_id", f.analyste_id)
     f.commentaire    = data.get("commentaire",  f.commentaire)
 
-    tx = Transaction.query.get(f.transaction_id)
+    tx = db.session.get(Transaction, f.transaction_id)
     if tx:
         tx.statut = "VALIDEE"
 
@@ -131,18 +131,18 @@ def rejeter_fraud(id):
 @fraud_bp.route("/api/fraud/<int:id>/bloquer", methods=["PUT"])
 @jwt_required()
 def bloquer_compte_fraud(id):
-    f = Fraud.query.get(id)
+    f = db.session.get(Fraud, id)
     if not f:
         return jsonify({"message": "Fraud record not found"}), 404
 
     if f.statut_analyse != "CONFIRME":
         return jsonify({"message": "Seule une fraude confirmée peut entraîner un blocage"}), 400
 
-    tx = Transaction.query.get(f.transaction_id)
+    tx = db.session.get(Transaction, f.transaction_id)
     if not tx:
         return jsonify({"message": "Transaction associée introuvable"}), 404
 
-    compte = Compte.query.get(tx.compte_id)
+    compte = db.session.get(Compte, tx.compte_id)
     if not compte:
         return jsonify({"message": "Compte associé introuvable"}), 404
 
@@ -161,7 +161,7 @@ def bloquer_compte_fraud(id):
 @fraud_bp.route("/api/fraud/<int:id>/reclassifier", methods=["PUT"])
 @jwt_required()
 def reclassifier_fraud(id):
-    f = Fraud.query.get(id)
+    f = db.session.get(Fraud, id)
     if not f:
         return jsonify({"message": "Fraud record not found"}), 404
 
@@ -172,7 +172,7 @@ def reclassifier_fraud(id):
     f.statut_analyse = "EN_COURS"
     f.commentaire    = data.get("commentaire", f.commentaire)
 
-    tx = Transaction.query.get(f.transaction_id)
+    tx = db.session.get(Transaction, f.transaction_id)
     if tx:
         tx.statut = "EN_ANALYSE"
 

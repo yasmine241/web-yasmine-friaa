@@ -1,0 +1,54 @@
+<div id="cookieConsentBanner"
+     role="dialog"
+     aria-live="polite"
+     aria-label="Consentement aux cookies"
+     style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:1200;
+            background:#1a1a2e; color:#fff; padding:1rem 1.25rem;
+            box-shadow:0 -2px 10px rgba(0,0,0,.25);">
+    <div style="max-width:960px; margin:0 auto; display:flex; flex-wrap:wrap;
+                align-items:center; gap:.9rem; justify-content:space-between;">
+        <p style="margin:0; font-size:.85rem; flex:1 1 320px;">
+            SG SecureBank utilise uniquement des cookies techniques nécessaires
+            au fonctionnement de la plateforme (session, authentification).
+            Aucun cookie de mesure d’audience ou publicitaire n’est déposé.
+            Voir les <a href="mentions-legales.html" style="color:#fff; text-decoration:underline;">mentions légales</a>.
+        </p>
+        <div style="display:flex; gap:.5rem; flex-shrink:0;">
+            <button id="cookieDeclineBtn" type="button" class="btn btn-secondary btn-sm"
+                    aria-label="Refuser les cookies non essentiels">
+                Refuser
+            </button>
+            <button id="cookieAcceptBtn" type="button" class="btn btn-primary btn-sm"
+                    aria-label="Accepter les cookies">
+                Accepter
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    function initCookieBanner() {
+        const banner  = document.getElementById("cookieConsentBanner");
+        const accept  = document.getElementById("cookieAcceptBtn");
+        const decline = document.getElementById("cookieDeclineBtn");
+        if (!banner) return;
+
+        const consent = localStorage.getItem("cookie_consent");
+        if (!consent) banner.style.display = "block";
+
+        accept?.addEventListener("click", () => {
+            localStorage.setItem("cookie_consent", "accepted");
+            banner.style.display = "none";
+        });
+        decline?.addEventListener("click", () => {
+            localStorage.setItem("cookie_consent", "declined");
+            banner.style.display = "none";
+        });
+    }
+    // Le composant est injecté via innerHTML par loadComponent(), donc son
+    // propre <script> doit s'exécuter immédiatement après insertion (pas
+    // besoin d'attendre DOMContentLoaded, déjà passé à ce moment-là).
+    initCookieBanner();
+})();
+</script>

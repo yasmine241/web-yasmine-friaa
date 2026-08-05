@@ -18,7 +18,21 @@ async function loadComponent(id, path) {
     try {
         const res  = await fetch(path);
         const html = await res.text();
-        document.getElementById(id).innerHTML = html;
+        const container = document.getElementById(id);
+        container.innerHTML = html;
+
+        // CORRECTION : les balises <script> injectées via innerHTML ne sont
+        // JAMAIS exécutées par le navigateur (comportement standard du DOM).
+        // Sans ce correctif, le script embarqué dans navbar.html (affichage
+        // du prénom/nom connecté) et celui de cookie-banner.html (bandeau
+        // RGPD) étaient injectés dans la page mais restaient totalement
+        // inertes. On les recrée manuellement pour forcer leur exécution.
+        container.querySelectorAll("script").forEach(oldScript => {
+            const newScript = document.createElement("script");
+            for (const attr of oldScript.attributes) newScript.setAttribute(attr.name, attr.value);
+            newScript.textContent = oldScript.textContent;
+            oldScript.replaceWith(newScript);
+        });
     } catch(e) { console.warn("Composant introuvable :", path); }
 }
 

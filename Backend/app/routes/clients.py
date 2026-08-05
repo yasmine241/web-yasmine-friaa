@@ -54,7 +54,7 @@ def get_clients():
 @clients_bp.route("/api/clients/<int:id>", methods=["GET"])
 @jwt_required()
 def get_client(id):
-    c = Client.query.get(id)
+    c = db.session.get(Client, id)
     if not c:
         return jsonify({"message": "Client introuvable"}), 404
     return jsonify({**_fmt(c), "telephone": c.telephone, "adresse": c.adresse})
@@ -62,7 +62,7 @@ def get_client(id):
 @clients_bp.route("/api/clients/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_client(id):
-    c = Client.query.get(id)
+    c = db.session.get(Client, id)
     if not c:
         return jsonify({"message": "Client introuvable"}), 404
     data = request.get_json()
@@ -80,7 +80,7 @@ def update_client(id):
 @clients_bp.route("/api/clients/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_client(id):
-    c = Client.query.get(id)
+    c = db.session.get(Client, id)
     if not c:
         return jsonify({"message": "Client introuvable"}), 404
     db.session.delete(c)

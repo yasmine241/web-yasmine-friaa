@@ -1,9 +1,15 @@
 <nav style="background:#1a1a2e; padding:.6rem 1.5rem; display:flex; justify-content:space-between; align-items:center;">
-    <span style="color:#fff; font-weight:700; font-size:1.1rem;">🏦 SG SecureBank</span>
+    
     <div style="display:flex; align-items:center; gap:1rem;">
         <span id="navUser" style="color:#aaa; font-size:.9rem;"></span>
+        <button onclick="confirmDeleteAccount()"
+                aria-label="Supprimer mon compte"
+                style="background:transparent; color:#aaa; border:1px solid #555; border-radius:6px; padding:.3rem .7rem; cursor:pointer; font-size:.8rem;">
+            🗑️ Mon compte
+        </button>
         <button onclick="logout()" style="background:#e30613; color:#fff; border:none; border-radius:6px; padding:.35rem .9rem; cursor:pointer;">Déconnexion</button>
     </div>
+   
 </nav>
 <script>
 (function() {
@@ -13,4 +19,26 @@
         if (el && (u.prenom || u.nom)) el.textContent = (u.prenom || "") + " " + (u.nom || "");
     } catch(e) {}
 })();
+
+// RGPD : droit à l'effacement — permet à l'utilisateur connecté de
+// supprimer lui-même son compte (client_id stocké au login).
+async function confirmDeleteAccount() {
+    const u = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!u.client_id) {
+        showToast("Suppression indisponible pour ce compte (administrateur système).", "warning");
+        return;
+    }
+    const ok = window.confirm(
+        "Cette action supprimera définitivement votre compte et vos données associées. Continuer ?"
+    );
+    if (!ok) return;
+
+    try {
+        await deleteClient(u.client_id);
+        showToast("Compte supprimé.");
+        setTimeout(logout, 800);
+    } catch (err) {
+        showToast("Erreur lors de la suppression : " + err.message, "danger");
+    }
+}
 </script>
