@@ -4,8 +4,8 @@ Projet de fin d'études — Yasmine FRIAA — NEXA Digital School (2025/2026)
 
 ## Liens
 
-- URL publique : `[à compléter]`
-- Dépôt Git : `[à compléter, ex: https://github.com/...]`
+- URL publique : `http://localhost:8080 `
+- Dépôt Git : `https://github.com/yasmine241/web-yasmine-friaa`
 
 ##  Description
 
