@@ -91,7 +91,7 @@ Testé sur :
 -  Google Chrome
 -  Mozilla Firefox
 -  Microsoft Edge
--  Safari
+-  Safari (validation partielle, non exhaustive)
 
 
 

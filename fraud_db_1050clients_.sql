@@ -1,5 +1,5 @@
 
--- SG SecureBank - 50 clients de test
+-- SG SecureBank - 1050 clients de test
 
 
 DROP TABLE fraud CASCADE CONSTRAINTS;
