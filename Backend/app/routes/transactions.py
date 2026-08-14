@@ -10,12 +10,15 @@ detector        = FraudDetector()
 
 
 def _normalize_score(score):
-    
+    """
+    Normalise le score_risque en valeur entre 0 et 1.
+    Corrige les anciennes valeurs aberrantes stockées en base.
+    """
     score = float(score or 0)
     if score > 100:
-        score = score / 10000   
+        score = score / 10000   # ex: 9013 → 0.9013
     elif score > 1:
-        score = score / 100     
+        score = score / 100     # ex: 90.13 → 0.9013
     return round(min(max(score, 0.0), 1.0), 4)
 
 
@@ -66,11 +69,22 @@ def create_transaction():
         "type_transaction": data.get("type_transaction", "VIREMENT")
     })
 
-    # CORRECTION : score ML est entre 0 et 1 — on le stocke tel quel 
+    # CORRECTION : score ML est entre 0 et 1 — on le stocke tel quel (pas × 100)
     score    = float(result["score"])
     score    = round(min(max(score, 0.0), 1.0), 4)   # sécurité : clamp 0-1
     is_fraud = result["fraud"]
     status   = "EN_ANALYSE" if is_fraud else "VALIDEE"
+
+    # Vérification explicite que le compte existe AVANT d'insérer,
+    # pour éviter un crash brut (violation de contrainte FK) qui,
+    # en mode debug, casse la réponse et fait croire à une erreur CORS.
+    from app.models import Compte
+    compte = db.session.get(Compte, data["compte_id"])
+    if compte is None:
+        return jsonify({
+            "message": f"Aucun compte trouvé avec l'ID {data['compte_id']}. "
+                       f"Utilise l'ID interne du compte (compte_id), pas le numéro de compte / IBAN."
+        }), 404
 
     new_tx = Transaction(
         compte_id        = data["compte_id"],
@@ -82,22 +96,31 @@ def create_transaction():
         date_transaction = datetime.now(timezone.utc),
         ip_adresse       = request.remote_addr,
         statut           = status,
-        score_risque     = score   # CORRECTION : stocké en 0-1 
+        score_risque     = score   # CORRECTION : stocké en 0-1 (ex: 0.9013)
     )
-    db.session.add(new_tx)
-    db.session.commit()
 
-    if is_fraud:
-        niveau = "CRITIQUE" if score >= 0.9 else "ELEVE"
-        db.session.add(Fraud(
-            transaction_id = new_tx.transaction_id,
-            type_fraude    = "TRANSACTION_INHABITUELLE",
-            niveau_risque  = niveau,
-            score_ml       = score,   # CORRECTION : stocké en 0-1
-            date_detection = datetime.now(timezone.utc),
-            statut_analyse = "EN_COURS"
-        ))
+    try:
+        db.session.add(new_tx)
         db.session.commit()
+
+        if is_fraud:
+            niveau = "CRITIQUE" if score >= 0.9 else "ELEVE"
+            db.session.add(Fraud(
+                transaction_id = new_tx.transaction_id,
+                type_fraude    = "TRANSACTION_INHABITUELLE",
+                niveau_risque  = niveau,
+                score_ml       = score,   # CORRECTION : stocké en 0-1
+                date_detection = datetime.now(timezone.utc),
+                statut_analyse = "EN_COURS"
+            ))
+            db.session.commit()
+    except Exception as e:
+        # Toute erreur DB (contrainte, type invalide, connexion...) est
+        # désormais interceptée et renvoyée en JSON propre au lieu de
+        # crasher le serveur (ce qui coupait la réponse et déclenchait
+        # une fausse erreur CORS côté navigateur).
+        db.session.rollback()
+        return jsonify({"message": f"Erreur lors de la création de la transaction : {str(e)}"}), 500
 
     return jsonify({
         "message":      "Transaction créée",

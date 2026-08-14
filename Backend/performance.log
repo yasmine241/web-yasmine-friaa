@@ -1302,3 +1302,9 @@
 2026-08-14 17:41:52,859 | OPTIONS /api/transactions -> 200 in 0.2 ms
 2026-08-14 17:41:53,130 | GET /api/transactions -> 200 in 12.0 ms
 2026-08-14 17:42:05,313 | OPTIONS /api/transactions -> 200 in 0.1 ms
+2026-08-14 17:44:45,861 | OPTIONS /api/transactions -> 200 in 0.1 ms
+2026-08-14 17:44:47,434 | GET /api/transactions -> 200 in 16.7 ms
+2026-08-14 17:44:56,331 | OPTIONS /api/transactions -> 200 in 0.1 ms
+2026-08-14 17:46:55,383 | GET / -> 200 in 0.1 ms
+2026-08-14 17:48:19,317 | GET /api/transactions -> 401 in 0.7 ms
+2026-08-14 17:49:40,304 | GET /.well-known/appspecific/com.chrome.devtools.json -> 404 in 0.3 ms
