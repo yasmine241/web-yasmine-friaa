@@ -12,9 +12,9 @@ detector  = FraudDetector()
 PENDING_STATUS = "EN_COURS"
 
 
-# ======================
+
 # POST /api/fraud/detect
-# ======================
+
 @fraud_bp.route("/api/fraud/detect", methods=["POST"])
 @jwt_required()
 def detect_fraud():
@@ -39,9 +39,8 @@ def detect_fraud():
     }), 200
 
 
-# ======================
 # GET /api/fraud/pending
-# ======================
+
 @fraud_bp.route("/api/fraud/pending", methods=["GET"])
 @jwt_required()
 def get_pending_frauds():
@@ -50,9 +49,8 @@ def get_pending_frauds():
     return jsonify([_fmt_full(f) for f in frauds])
 
 
-# ======================
 # GET /api/fraud
-# ======================
+
 @fraud_bp.route("/api/fraud", methods=["GET"])
 @jwt_required()
 def get_frauds():
@@ -67,9 +65,9 @@ def get_frauds():
     })
 
 
-# ======================
+
 # GET /api/fraud/<id>
-# ======================
+
 @fraud_bp.route("/api/fraud/<int:id>", methods=["GET"])
 @jwt_required()
 def get_fraud(id):
@@ -79,9 +77,7 @@ def get_fraud(id):
     return jsonify(_fmt_full(f))
 
 
-# ======================
-# PUT /api/fraud/<id>/valider  → CONFIRME
-# ======================
+# PUT /api/fraud/<id>/valider 
 @fraud_bp.route("/api/fraud/<int:id>/valider", methods=["PUT"])
 @jwt_required()
 def valider_fraud(id):
@@ -102,9 +98,7 @@ def valider_fraud(id):
     return jsonify({"message": "Fraude confirmée, transaction rejetée"})
 
 
-# ======================
-# PUT /api/fraud/<id>/rejeter  → FAUX_POSITIF
-# ======================
+# PUT /api/fraud/<id>/rejeter 
 @fraud_bp.route("/api/fraud/<int:id>/rejeter", methods=["PUT"])
 @jwt_required()
 def rejeter_fraud(id):
@@ -125,9 +119,9 @@ def rejeter_fraud(id):
     return jsonify({"message": "Faux positif enregistré, transaction validée"})
 
 
-# ======================
-# PUT /api/fraud/<id>/bloquer  → bloque le compte lié, statut RESOLU
-# ======================
+
+# PUT /api/fraud/<id>/bloquer  
+
 @fraud_bp.route("/api/fraud/<int:id>/bloquer", methods=["PUT"])
 @jwt_required()
 def bloquer_compte_fraud(id):
@@ -155,9 +149,8 @@ def bloquer_compte_fraud(id):
     return jsonify({"message": f"Compte #{compte.compte_id} bloqué, fraude résolue"})
 
 
-# ======================
-# PUT /api/fraud/<id>/reclassifier  → rouvre une fraude marquée FAUX_POSITIF
-# ======================
+# PUT /api/fraud/<id>/reclassifier  
+
 @fraud_bp.route("/api/fraud/<int:id>/reclassifier", methods=["PUT"])
 @jwt_required()
 def reclassifier_fraud(id):
@@ -182,7 +175,7 @@ def reclassifier_fraud(id):
 
 # ── helpers ──────────────────────────────────────────────
 def _fmt_full(f):
-    # score_ml en Oracle est entre 0-100 → normaliser en 0-1 pour le frontend
+    # score_ml en Oracle est entre 0-100 : normaliser en 0-1 pour le frontend
     score_raw = float(f.score_ml or 0)
     score_norm = score_raw / 100.0 if score_raw > 1 else score_raw
 

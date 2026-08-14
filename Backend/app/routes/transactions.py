@@ -10,15 +10,12 @@ detector        = FraudDetector()
 
 
 def _normalize_score(score):
-    """
-    Normalise le score_risque en valeur entre 0 et 1.
-    Corrige les anciennes valeurs aberrantes stockées en base.
-    """
+    
     score = float(score or 0)
     if score > 100:
-        score = score / 10000   # ex: 9013 → 0.9013
+        score = score / 10000   
     elif score > 1:
-        score = score / 100     # ex: 90.13 → 0.9013
+        score = score / 100     
     return round(min(max(score, 0.0), 1.0), 4)
 
 
@@ -69,7 +66,7 @@ def create_transaction():
         "type_transaction": data.get("type_transaction", "VIREMENT")
     })
 
-    # CORRECTION : score ML est entre 0 et 1 — on le stocke tel quel (pas × 100)
+    # CORRECTION : score ML est entre 0 et 1 — on le stocke tel quel 
     score    = float(result["score"])
     score    = round(min(max(score, 0.0), 1.0), 4)   # sécurité : clamp 0-1
     is_fraud = result["fraud"]
@@ -85,7 +82,7 @@ def create_transaction():
         date_transaction = datetime.now(timezone.utc),
         ip_adresse       = request.remote_addr,
         statut           = status,
-        score_risque     = score   # CORRECTION : stocké en 0-1 (ex: 0.9013)
+        score_risque     = score   # CORRECTION : stocké en 0-1 
     )
     db.session.add(new_tx)
     db.session.commit()

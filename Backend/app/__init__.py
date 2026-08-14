@@ -5,7 +5,7 @@ from app.extensions import db, jwt
 import logging
 import time
 
-# Logger dédié aux mesures de performance (temps de réponse par requête)
+# Logger dédié aux mesures de performance 
 perf_logger = logging.getLogger("sgsecurebank.perf")
 perf_logger.setLevel(logging.INFO)
 if not perf_logger.handlers:
@@ -25,7 +25,7 @@ def create_app():
          allow_headers=["Content-Type", "Authorization"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
-    # Header CORS de secours sur TOUTES les réponses (y compris erreurs 500)
+    # Header CORS de secours sur TOUTES les réponses 
     @app.after_request
     def add_cors_headers(response):
         response.headers["Access-Control-Allow-Origin"]  = "http://localhost:8080"
@@ -33,11 +33,6 @@ def create_app():
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         return response
 
-    # ── Mesure du temps de réponse par requête ──
-    # Sert de base aux mesures de performance (temps de réponse, endpoints
-    # les plus lents) demandées dans le rapport. Écrit dans performance.log
-    # et renvoie le temps mesuré dans l'en-tête X-Response-Time-ms (pratique
-    # pour l'inspecter depuis les DevTools réseau du navigateur).
     @app.before_request
     def _start_timer():
         g._start_time = time.perf_counter()
