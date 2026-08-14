@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "http://127.0.0.1:5000";;
 
 function getToken()      { return localStorage.getItem("token"); }
 function setToken(token) { localStorage.setItem("token", token); }
@@ -21,12 +21,7 @@ async function loadComponent(id, path) {
         const container = document.getElementById(id);
         container.innerHTML = html;
 
-        // CORRECTION : les balises <script> injectées via innerHTML ne sont
-        // JAMAIS exécutées par le navigateur (comportement standard du DOM).
-        // Sans ce correctif, le script embarqué dans navbar.html (affichage
-        // du prénom/nom connecté) et celui de cookie-banner.html (bandeau
-        // RGPD) étaient injectés dans la page mais restaient totalement
-        // inertes. On les recrée manuellement pour forcer leur exécution.
+    
         container.querySelectorAll("script").forEach(oldScript => {
             const newScript = document.createElement("script");
             for (const attr of oldScript.attributes) newScript.setAttribute(attr.name, attr.value);
