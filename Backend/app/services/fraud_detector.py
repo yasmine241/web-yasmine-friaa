@@ -4,7 +4,7 @@ MODEL_PATH = os.path.join(os.path.dirname(__file__), "fraud_model.pkl")
 
 PAYS_LIST = ["Allemagne","Belgique","Brésil","Chine","Espagne","Etats-Unis",
              "France","Inde","Italie","Japon","Maroc","Pays-Bas","Portugal",
-             "Royaume-Uni","Russie","Sénégal","Suisse","Tunisie","Turquie"]
+             "Royaume-Uni","Russie","Sénégal","Suisse","Tunisie","Turquie","Chine","Japon","Russie","Inde","Brésil","Allemagne","Italie","Espagne",]
 TYPE_LIST = ["DEPOT","PAIEMENT_EN_LIGNE","RETRAIT","TRANSACTION_MOBILE","VIREMENT"]
 
 def encode(value, lst):
@@ -37,7 +37,8 @@ class FraudDetector:
                 montant,
                 encode(type_tx, TYPE_LIST),
                 encode(pays_o,  PAYS_LIST),
-                encode(pays_d,  PAYS_LIST)
+                encode(pays_d,  PAYS_LIST),
+                self._rule_score(montant, pays_o, pays_d) 
             ]])
             proba = self.model.predict_proba(features)[0][1]
             return {"score": round(float(proba), 2), "fraud": bool(proba >= 0.7)}
