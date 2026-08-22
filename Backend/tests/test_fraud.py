@@ -1,8 +1,4 @@
-"""
-Tests du cycle de vie d'une alerte de fraude :
-EN_COURS -> CONFIRME -> bloquer, ou EN_COURS -> FAUX_POSITIF -> reclassifier.
-Catégorie : intégration (règles métier Human-in-the-Loop).
-"""
+
 from tests.conftest import auth_header
 
 

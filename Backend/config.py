@@ -5,7 +5,7 @@ load_dotenv()  # charge le fichier .env AVANT toute lecture de os.environ
 
 
 def _require_env(key):
-    """Empêche de démarrer silencieusement avec un secret par défaut faible."""
+    
     value = os.environ.get(key)
     if not value:
         raise RuntimeError(
